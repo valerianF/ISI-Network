@@ -17,7 +17,7 @@ app = dash.Dash(__name__)
 data = pd.read_csv(os.path.join(os.getcwd(), 'data', 'installationsList.csv'))
 
 net = netObj(data)
-net.initiate_network(['IA_Many', 'IDof_One', 'CO_Exhibition'])
+net.initiate_network(['FT_Haptic', 'IDof_One'], parent="IA")
 elements = net.elements
 
 """ Application Layout """
@@ -25,8 +25,8 @@ app.layout = html.Div([
     cyto.Cytoscape(
         id='main-network',
         layout={
-            'name': 'concentric',
-            'padding': '0'
+            'name':'cose',
+            'nodeDimensionsIncludeLabels': 'true'
             },
         style={'width': '100%', 'height': '800px'},
         elements = elements
