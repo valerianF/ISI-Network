@@ -8,6 +8,7 @@ class netObj:
         self.net = {}
         self.len = len(self.data)
         self.elements = []
+        self.stylesheet = []
 
     def initiate_network(self, keys, parent=None):
         """ Create network parents and children nodes and edges. 
@@ -22,18 +23,23 @@ class netObj:
         """
 
         parents = []
+        parents_f = []
+        colors = ['red', 'blue', 'green','magenta', 'cyan']
 
         # Initialize parents list
         for col in self.data:
             if parent in col:
-                parents.append(col)
+                for i in range(self.len):
+                    values_i = [self.data.loc[i, key] for key in keys]
+                    if all(v == 1 for v in values_i):
+                        if self.data.loc[i, col] == 1:
+                            if col not in parents:
+                                parents.append(col)
 
         # Node and Edge elements
         array = np.linspace(0, self.len-1, self.len, dtype=int)
         for i in range(self.len):
             values_i = [self.data.loc[i, key] for key in keys]
-            for key in keys:
-                values_i.append(self.data.loc[i, key])
             if all(v == 1 for v in values_i):
                 array = np.delete(array, np.where(array == i))
                 n_pi = 0
@@ -43,12 +49,10 @@ class netObj:
                     try:
                         if self.data.loc[i, col] == 1:
                             if n_pi == 0:
-                                node_parent_i = col
+                                node_parent_i = [col]
                                 n_pi += 1
                             else:
-                                node_parent_i += " " + col 
-                                if node_parent_i not in parents:
-                                    parents.append(node_parent_i)
+                                node_parent_i.append(col)
                     except KeyError:
                         continue
 
@@ -70,31 +74,82 @@ class netObj:
                             try:
                                 if self.data.loc[j, col] == 1:
                                     if n_pj == 0:
-                                        node_parent_j = col
+                                        node_parent_j = [col]
                                         n_pj += 1
                                     else:
-                                        node_parent_j += " " + col 
+                                        node_parent_j.append(col) 
                             except KeyError:
                                 continue
 
-                        # if (any([p in node_parent_i for p in node_parent_j.split()])):
-                        if node_parent_j == node_parent_i:
+                        if (any([p in node_parent_i for p in node_parent_j])):
+                            n_p = 0
+                            ind = []
+                            for p in node_parent_j:
+                                if p in node_parent_i:
+                                    n_p += 1
+                                    ind.append(node_parent_i.index(p))
 
                             # Add Edges for Nodes with same parent
                             self.elements.append(dict(
                             data=dict(
                                 source=self.data.loc[i, 'ID'],
                                 target=self.data.loc[j, 'ID'],
-                                label='Node {x} to {y}'.format(x=self.data.loc[i, 'ID'],
-                                                                y=self.data.loc[j, 'ID'])
-                            ) 
+                                label=node_parent_i
+                            ),
+                            classes= colors[parents.index(node_parent_i[ind[0]])]
                             ))
+                            if n_p == 2:
+                                self.elements.append(dict(
+                                data=dict(
+                                    source=self.data.loc[i, 'ID'],
+                                    target=self.data.loc[j, 'ID'],
+                                    label=node_parent_i
+                                ),
+                                classes= colors[parents.index(node_parent_i[ind[1]])] +
+                                    " " + 'bezier'
+                                ))
+                            if n_p == 3:
+                                self.elements.append(dict(
+                                data=dict(
+                                    source=self.data.loc[i, 'ID'],
+                                    target=self.data.loc[j, 'ID'],
+                                    label=node_parent_i
+                                ),
+                                classes= colors[parents.index(node_parent_i[ind[2]])] +
+                                    " " + 'bezier1'
+                                ))
 
-        # Add parent Nodes
-        for p in parents:
-            self.elements.append(dict(
-                data=dict(
-                    id=p, 
-                    label=p
-                )
+        # Generate Stylesheets
+        for parent in parents:
+            self.stylesheet.append(dict(
+                selector = '.' + colors[parents.index(parent)],
+                style = {
+                    'line-color': colors[parents.index(parent)]
+                }
             ))
+        
+        self.stylesheet.append(dict(
+            selector = 'node',
+            style = dict(
+                label = 'data(label)'
+            )
+        ))
+
+        self.stylesheet.append(dict(
+            selector = 'edge.bezier',
+            style = {
+                "curve-style": "unbundled-bezier",
+                "control-point-distances": 120,
+                "control-point-weights": 0.1              
+            }
+        ))
+
+        self.stylesheet.append(dict(
+            selector = 'edge.bezier1',
+            style = {
+                "curve-style": "unbundled-bezier",
+                "control-point-distances": 150,
+                "control-point-weights": 0.4              
+            }
+        ))
+

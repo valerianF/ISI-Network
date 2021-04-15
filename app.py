@@ -17,8 +17,9 @@ app = dash.Dash(__name__)
 data = pd.read_csv(os.path.join(os.getcwd(), 'data', 'installationsList.csv'))
 
 net = netObj(data)
-net.initiate_network(['FT_Haptic', 'IDof_One'], parent="IA")
+net.initiate_network(['FT_Haptic', 'ODof_Several'], parent="IA")
 elements = net.elements
+stylesheet = net.stylesheet
 
 """ Application Layout """
 app.layout = html.Div([
@@ -29,7 +30,10 @@ app.layout = html.Div([
             'nodeDimensionsIncludeLabels': 'true'
             },
         style={'width': '100%', 'height': '800px'},
-        elements = elements
+        elements = elements,
+        stylesheet = stylesheet,
+        minZoom=0.3,
+        maxZoom=1
     )
 ])
 
