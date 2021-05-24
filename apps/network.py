@@ -141,7 +141,7 @@ class netObj:
                 'text-background-opacity': '1',
                 'text-backgroun-shape': 'round-rectangle',
                 'text-margin-y': '-5px',
-                'font-family': 'Georgia, serif'
+                'font-family': 'FontBold, sans-serif'
             }
         ))
 

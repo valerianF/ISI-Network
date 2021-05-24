@@ -1,0 +1,23 @@
+/* Import local fonts */
+
+@font-face {
+    font-family: 'FontHeader';
+    src: url("fonts/Montserrat-ExtraLight.otf") format("opentype");
+}
+
+@font-face {
+    font-family: 'FontNormal';
+    src: url("fonts/Montserrat-Light.otf") format("opentype");
+}
+
+@font-face {
+    font-family: 'FontBold';
+    font-weight: bold;
+    src: url("fonts/Montserrat-Regular.otf") format("opentype");
+}
+
+@font-face {
+    font-family: 'FontXBold';
+    font-weight: bold;
+    src: url("fonts/Montserrat-ExtraBold.otf") format("opentype");
+}
