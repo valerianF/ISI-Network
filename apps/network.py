@@ -130,9 +130,19 @@ class netObj:
         
         self.stylesheet.append(dict(
             selector = 'node',
-            style = dict(
-                label = 'data(label)'
-            )
+            style = {
+                'label': 'data(label)',
+                'background-color':  '#BABABA',
+                'border-width': '3',
+                'border-style': 'solid',
+                'border-color': 'black',
+                'color': 'black',
+                'text-background-color': 'white',
+                'text-background-opacity': '1',
+                'text-backgroun-shape': 'round-rectangle',
+                'text-margin-y': '-5px',
+                'font-family': 'Georgia, serif'
+            }
         ))
 
         self.stylesheet.append(dict(
