@@ -21,3 +21,15 @@
     font-weight: bold;
     src: url("fonts/Montserrat-ExtraBold.otf") format("opentype");
 }
+
+/* Headers and body styling */
+
+body {
+    font-family: 'FontNormal';
+    margin: 30px 75px 75px 75px; 
+    color: rgb(31, 31, 31);
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'FontHeader';
+    color: #383838
+}

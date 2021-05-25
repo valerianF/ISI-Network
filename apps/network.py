@@ -25,6 +25,8 @@ class netObj:
         parents = []
         parents_f = []
         colors = ['red', 'blue', 'green','magenta', 'cyan']
+        self.elements = []
+        self.stylesheet = []
 
         # Initialize parents list
         for col in self.data:
