@@ -34,6 +34,9 @@ labellist = AI.labels[12:] + IN.labels[7:] + SD.labels[18:] + FI.labels[13:]
 IDlist = AI.df['ids'][12:].tolist() + IN.df['ids'][7:].tolist() + SD.df['ids'][18:].tolist() + FI.labels[13:]
 parentlist = AI.parentslabels[12:] + IN.parentslabels[7:] + SD.parentslabels[18:] + FI.parents[13:]
 
+linkIDlist = AI.df['ids'][1:12].tolist() + IN.df['ids'][1:7].tolist() + SD.df['ids'][1:18].tolist()
+linkparentlist = AI.labels[1:12] + IN.labels[1:7] + SD.labels[1:18]
+
 """ Create Network Elements """
 net = netObj(data)
 
@@ -56,7 +59,27 @@ app.layout = html.Div([
 
     html.Div([
         dcc.Dropdown(
-            id='dropdown_cat',
+            id='dropdown_link',
+            options = [
+                {
+                'label': re.sub('<br>', ' ', linkparentlist[i]),
+                'value': linkparentlist[i]
+                } for i in range(0, len(linkparentlist))
+                ],
+            multi=False, # A single category to filter installations
+            placeholder="Select a category to link installations",
+            style={
+                    'height': '200%',
+                    'width' : '500px'
+                    }
+        ),
+    ], style={'display': 'flex'}),
+
+    html.P(style={'paddingBottom': '0px'}),  
+
+    html.Div([
+        dcc.Dropdown(
+            id='dropdown_filter',
             options = [
                 {
                 'label': re.sub('<br>', ' ', parentlist[i]) + ' | ' + re.sub('<br>', ' ', labellist[i]),
@@ -70,7 +93,6 @@ app.layout = html.Div([
                     'width' : '500px'
                     }
         ),
-        # html.Button('Take a Snapshot', id='snap-button', n_clicks=0, style={'marginLeft': '30px'}),
     ], style={'display': 'flex'}),
 
 ])
@@ -78,25 +100,29 @@ app.layout = html.Div([
 @app.callback([
     Output('main-network', 'elements'),
     Output('main-network', 'stylesheet')
-    ], [Input('dropdown_cat', 'value')])
-def update_elements(input_values):
+    ], [Input('dropdown_filter', 'value'),
+    Input('dropdown_link', 'value')])
+def update_elements(input_cat, input_link):
 
     output_values = []
+    output_link = ""
 
-    if input_values is None or input_values == []:
-        net.initiate_network([], parent="IA")
-        elements = net.elements
-        stylesheet = net.stylesheet
-        return elements, stylesheet
+    if input_cat is None or input_cat == []:
+        output_values = ['SG_Obj_Mecha']
     else:
-        for input_value in input_values:
+        for input_value in input_cat:
             output_values.append(IDlist[labellist.index(input_value)])
-        net.initiate_network(output_values, parent="IA")
 
-        elements = net.elements
-        stylesheet = net.stylesheet
+    if input_link is None or input_link == []:
+        output_link = "IA"
+    else:
+        output_link = linkIDlist[linkparentlist.index(input_link)]
 
-        return elements, stylesheet
+    net.initiate_network(output_values, parent=output_link)
+    elements = net.elements
+    stylesheet = net.stylesheet
+
+    return elements, stylesheet
 
 
 
