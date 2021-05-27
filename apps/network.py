@@ -44,6 +44,7 @@ class netObj:
             values_i = [self.data.loc[i, key] for key in keys]
             if all(v == 1 for v in values_i):
                 array = np.delete(array, np.where(array == i))
+                node_parent_i = [""]
                 n_pi = 0
 
                 # Evaluate Node's parent(s)
@@ -57,7 +58,7 @@ class netObj:
                                 node_parent_i.append(col)
                     except KeyError:
                         continue
-
+               
                 # Add Node
                 self.elements.append(dict(
                     data=dict(
@@ -67,10 +68,16 @@ class netObj:
                     # grabbable=False
                     )
                 ))
+
+                # Break if node doesn't have any parent
+                if node_parent_i == [""]:
+                    continue
+
                 for j in array:
                     values_j = [self.data.loc[j, key] for key in keys]
                     if all(v == 1 for v in values_j):
                         # Evaluate Node's parent(s)
+                        node_parent_j = [""]
                         n_pj = 0
                         for col in parents:
                             try:

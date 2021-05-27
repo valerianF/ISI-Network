@@ -24,7 +24,7 @@ SD = appObj(data, 'System Design')
 IN = appObj(data, 'Interaction')
 FI = appObj(data, 'Field')
 
-""" Initiate respective sunburst arrays."""
+""" Initiate arrays"""
 AI.initiate_arrays()
 SD.initiate_arrays()
 IN.initiate_arrays()
@@ -37,8 +37,15 @@ parentlist = AI.parentslabels[12:] + IN.parentslabels[7:] + SD.parentslabels[18:
 linkIDlist = AI.df['ids'][1:12].tolist() + IN.df['ids'][1:7].tolist() + SD.df['ids'][1:18].tolist()
 linkparentlist = AI.labels[1:12] + IN.labels[1:7] + SD.labels[1:18]
 
+linkIDlist = [x for x in linkIDlist if x not in ['LS', 'SP', 'TS', 'IT', 'SD', 'SG']]
+linkparentlist = [x for x in linkparentlist if x not in 
+    ["Visitor\'s<br>Position", "Spatialization", "Type of<br>Input Device", 
+    "Interaction<br>Type", "Sound<br>Design", "Sound<br>Generation"]]
+
+
 """ Create Network Elements """
 net = netObj(data)
+
 
 """ Application Layout """
 app.layout = html.Div([
