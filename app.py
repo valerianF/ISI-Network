@@ -64,43 +64,53 @@ app.layout = html.Div([
         )
     ]),
 
-    html.Div([
-        dcc.Dropdown(
-            id='dropdown_link',
-            options = [
-                {
-                'label': re.sub('<br>', ' ', linkparentlist[i]),
-                'value': linkparentlist[i]
-                } for i in range(0, len(linkparentlist))
-                ],
-            multi=False, # A single category to filter installations
-            placeholder="Select a category to link installations",
-            style={
-                    'height': '200%',
-                    'width' : '500px'
-                    }
-        ),
-    ], style={'display': 'flex'}),
+    html.Div(
+        id='legend',
+        children = [
+            html.Fieldset(
+                children= [
+                    html.Legend('Legend'),
+                ]
+            )
+    ]),
 
-    html.P(style={'paddingBottom': '0px'}),  
+    html.P(style={'paddingBottom': '0cm'}),  
 
     html.Div([
-        dcc.Dropdown(
-            id='dropdown_filter',
-            options = [
-                {
-                'label': re.sub('<br>', ' ', parentlist[i]) + ' | ' + re.sub('<br>', ' ', labellist[i]),
-                'value': labellist[i]
-                } for i in range(0, len(labellist))
-                ],
-            multi=True, # Makes in sort that several categories can be selected
-            placeholder="Select one or more categories to filter installations",
-            style={
-                    'height': '200%',
-                    'width' : '500px'
-                    }
-        ),
-    ], style={'display': 'flex'}),
+        html.Div([
+            dcc.Dropdown(
+                id='dropdown_link',
+                options = [
+                    {
+                    'label': re.sub('<br>', ' ', linkparentlist[i]),
+                    'value': linkparentlist[i]
+                    } for i in range(0, len(linkparentlist))
+                    ],
+                multi=False, # A single category to filter installations
+                placeholder="Select a category to link installations",
+                style={
+                        'height': '200%'
+                        }
+            ),
+        ], style={'width': '49%', 'display': 'inline-block'}),
+
+        html.Div([
+            dcc.Dropdown(
+                id='dropdown_filter',
+                options = [
+                    {
+                    'label': re.sub('<br>', ' ', parentlist[i]) + ' | ' + re.sub('<br>', ' ', labellist[i]),
+                    'value': labellist[i]
+                    } for i in range(0, len(labellist))
+                    ],
+                multi=True, # Makes in sort that several categories can be selected
+                placeholder="Select one or more categories to filter installations",
+                style={
+                        'height': '200%'
+                        }
+            ),
+        ], style={'width': '49%', 'display': 'inline-block', 'margin-left': '2%'}),
+    ])
 
 ])
 
