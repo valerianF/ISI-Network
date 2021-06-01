@@ -65,14 +65,9 @@ app.layout = html.Div([
     ]),
 
     html.Div(
-        id='legend',
-        children = [
-            html.Fieldset(
-                children= [
-                    html.Legend('Legend'),
-                ]
-            )
-    ]),
+        id='network-legend',
+        className = 'legend'
+    ),
 
     html.P(style={'paddingBottom': '0cm'}),  
 
@@ -116,7 +111,8 @@ app.layout = html.Div([
 
 @app.callback([
     Output('main-network', 'elements'),
-    Output('main-network', 'stylesheet')
+    Output('main-network', 'stylesheet'),
+    Output('network-legend', 'children')
     ], [Input('dropdown_filter', 'value'),
     Input('dropdown_link', 'value')])
 def update_elements(input_cat, input_link):
@@ -139,10 +135,15 @@ def update_elements(input_cat, input_link):
     elements = net.elements
     stylesheet = net.stylesheet
 
-    return elements, stylesheet
+    children = [html.Legend(re.sub('<br>', ' ', parentlist[IDlist.index(net.parents[0])]))]
 
+    for parent in net.parents:
+        children.extend([
+            html.Span(className=net.colors[net.parents.index(parent)]),
+            html.Li(re.sub('<br>', ' ', labellist[IDlist.index(parent)]))
+        ])
 
-
+    return elements, stylesheet, [html.Fieldset(children)]
 
 if __name__ == '__main__':
     app.run_server(debug=True)

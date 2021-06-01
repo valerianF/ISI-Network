@@ -4,11 +4,11 @@ import numpy as np
 class netObj:
     def __init__(self, data):
         self.data = data
-        self.IDs = []
-        self.net = {}
         self.len = len(self.data)
         self.elements = []
         self.stylesheet = []
+        self.colors = []
+        self.parents = []
 
     def initiate_network(self, keys, parent=None):
         """ Create network parents and children nodes and edges. 
@@ -22,9 +22,9 @@ class netObj:
 
         """
 
-        parents = []
+        self.parents = []
         parents_f = []
-        colors = ['red', 'blue', 'green','magenta', 'cyan', 'black', 'yellow', 'brown']
+        self.colors = ['red', 'blue', 'green','magenta', 'cyan', 'black', 'yellow', 'brown']
         self.elements = []
         self.stylesheet = []
 
@@ -35,8 +35,8 @@ class netObj:
                     values_i = [self.data.loc[i, key] for key in keys]
                     if all(v == 1 for v in values_i):
                         if self.data.loc[i, col] == 1:
-                            if col not in parents:
-                                parents.append(col)
+                            if col not in self.parents:
+                                self.parents.append(col)
 
         # Node and Edge elements
         array = np.linspace(0, self.len-1, self.len, dtype=int)
@@ -48,7 +48,7 @@ class netObj:
                 n_pi = 0
 
                 # Evaluate Node's parent(s)
-                for col in parents:
+                for col in self.parents:
                     try:
                         if self.data.loc[i, col] == 1:
                             if n_pi == 0:
@@ -79,7 +79,7 @@ class netObj:
                         # Evaluate Node's parent(s)
                         node_parent_j = [""]
                         n_pj = 0
-                        for col in parents:
+                        for col in self.parents:
                             try:
                                 if self.data.loc[j, col] == 1:
                                     if n_pj == 0:
@@ -105,7 +105,7 @@ class netObj:
                                 target=self.data.loc[j, 'ID'],
                                 label=node_parent_i
                             ),
-                            classes= colors[parents.index(node_parent_i[ind[0]])]
+                            classes= self.colors[self.parents.index(node_parent_i[ind[0]])]
                             ))
                             if n_p == 2:
                                 self.elements.append(dict(
@@ -114,7 +114,7 @@ class netObj:
                                     target=self.data.loc[j, 'ID'],
                                     label=node_parent_i
                                 ),
-                                classes= colors[parents.index(node_parent_i[ind[1]])] +
+                                classes= self.colors[self.parents.index(node_parent_i[ind[1]])] +
                                     " " + 'bezier'
                                 ))
                             if n_p == 3:
@@ -124,16 +124,16 @@ class netObj:
                                     target=self.data.loc[j, 'ID'],
                                     label=node_parent_i
                                 ),
-                                classes= colors[parents.index(node_parent_i[ind[2]])] +
+                                classes= self.colors[self.parents.index(node_parent_i[ind[2]])] +
                                     " " + 'bezier1'
                                 ))
 
         # Generate Stylesheets
-        for parent in parents:
+        for parent in self.parents:
             self.stylesheet.append(dict(
-                selector = '.' + colors[parents.index(parent)],
+                selector = '.' + self.colors[self.parents.index(parent)],
                 style = {
-                    'line-color': colors[parents.index(parent)]
+                    'line-color': self.colors[self.parents.index(parent)]
                 }
             ))
         
