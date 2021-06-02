@@ -40,24 +40,17 @@ class netObj:
 
         # Node and Edge elements
         array = np.linspace(0, self.len-1, self.len, dtype=int)
+        shared_parents = []
         for i in range(self.len):
             values_i = [self.data.loc[i, key] for key in keys]
             if all(v == 1 for v in values_i):
                 array = np.delete(array, np.where(array == i))
-                node_parent_i = [""]
-                n_pi = 0
+                node_parent_i = []
 
                 # Evaluate Node's parent(s)
                 for col in self.parents:
-                    try:
-                        if self.data.loc[i, col] == 1:
-                            if n_pi == 0:
-                                node_parent_i = [col]
-                                n_pi += 1
-                            else:
-                                node_parent_i.append(col)
-                    except KeyError:
-                        continue
+                    if self.data.loc[i, col] == 1:
+                        node_parent_i.append(col)
                
                 # Add Node
                 self.elements.append(dict(
@@ -69,34 +62,28 @@ class netObj:
                     )
                 ))
 
-                # Break if node doesn't have any parent
-                if node_parent_i == [""]:
+                # Continue if node doesn't have any parent
+                if node_parent_i == []:
                     continue
 
+                
+                # Evaluate remaining installations for siblings
                 for j in array:
                     values_j = [self.data.loc[j, key] for key in keys]
                     if all(v == 1 for v in values_j):
+                        node_parent_j = []
+
                         # Evaluate Node's parent(s)
-                        node_parent_j = [""]
-                        n_pj = 0
                         for col in self.parents:
-                            try:
-                                if self.data.loc[j, col] == 1:
-                                    if n_pj == 0:
-                                        node_parent_j = [col]
-                                        n_pj += 1
-                                    else:
-                                        node_parent_j.append(col) 
-                            except KeyError:
-                                continue
+                            if self.data.loc[j, col] == 1:
+                                node_parent_j.append(col)
 
                         if (any([p in node_parent_i for p in node_parent_j])):
                             n_p = 0
-                            ind = []
                             for p in node_parent_j:
                                 if p in node_parent_i:
                                     n_p += 1
-                                    ind.append(node_parent_i.index(p))
+                                    shared_parents.append(p)
 
                             # Add Edges for Nodes with same parent
                             self.elements.append(dict(
@@ -105,7 +92,7 @@ class netObj:
                                 target=self.data.loc[j, 'ID'],
                                 label=node_parent_i
                             ),
-                            classes= self.colors[self.parents.index(node_parent_i[ind[0]])]
+                            classes= self.colors[self.parents.index(node_parent_i[0])]
                             ))
                             if n_p == 2:
                                 self.elements.append(dict(
@@ -114,7 +101,7 @@ class netObj:
                                     target=self.data.loc[j, 'ID'],
                                     label=node_parent_i
                                 ),
-                                classes= self.colors[self.parents.index(node_parent_i[ind[1]])] +
+                                classes= self.colors[self.parents.index(node_parent_i[1])] +
                                     " " + 'bezier'
                                 ))
                             if n_p == 3:
@@ -124,14 +111,28 @@ class netObj:
                                     target=self.data.loc[j, 'ID'],
                                     label=node_parent_i
                                 ),
-                                classes= self.colors[self.parents.index(node_parent_i[ind[2]])] +
+                                classes= self.colors[self.parents.index(node_parent_i[2])] +
                                     " " + 'bezier1'
                                 ))
 
         # Generate Stylesheets
+        for i in range(len(self.elements)):
+            try:
+                for j in range(len(self.elements[i]['data']['parent'])):
+                    if self.elements[i]['data']['parent'][j] is not [] and self.elements[i]['data']['parent'][j] not in shared_parents:
+                        self.elements[i]['classes'] = "no_siblings_" + self.colors[self.parents.index(self.elements[i]['data']['parent'][j])]
+                        self.stylesheet.append(dict(
+                            selector = "node.no_siblings_" + self.colors[self.parents.index(self.elements[i]['data']['parent'][j])],
+                            style = {
+                                'background-color': self.colors[self.parents.index(self.elements[i]['data']['parent'][j])]
+                            }
+                        ))
+            except KeyError:
+                continue
+                            
         for parent in self.parents:
             self.stylesheet.append(dict(
-                selector = '.' + self.colors[self.parents.index(parent)],
+                selector = 'edge.' + self.colors[self.parents.index(parent)],
                 style = {
                     'line-color': self.colors[self.parents.index(parent)]
                 }
@@ -141,7 +142,6 @@ class netObj:
             selector = 'node',
             style = {
                 'label': 'data(label)',
-                'background-color':  '#BABABA',
                 'border-width': '3',
                 'border-style': 'solid',
                 'border-color': 'black',

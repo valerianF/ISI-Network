@@ -12,8 +12,15 @@ from dash.dependencies import Input, Output
 from apps.network import netObj
 from apps.sunburst import appObj
 
+""" External Stylesheet """
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
 """ App initialization """
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, 
+    suppress_callback_exceptions=True,
+    external_stylesheets=external_stylesheets,
+    title='ISI Database',
+    update_title='Loading...')
 
 """ Importing the datasheet into a pandas dataframe """
 data = pd.read_csv(os.path.join(os.getcwd(), 'data', 'installationsList.csv'))
@@ -41,10 +48,6 @@ linkIDlist = [x for x in linkIDlist if x not in ['LS', 'SP', 'TS', 'IT', 'SD', '
 linkparentlist = [x for x in linkparentlist if x not in 
     ["Visitor\'s<br>Position", "Spatialization", "Type of<br>Input Device", 
     "Interaction<br>Type", "Sound<br>Design", "Sound<br>Generation"]]
-
-
-""" Create Network Elements """
-net = netObj(data)
 
 
 """ Application Layout """
@@ -127,10 +130,11 @@ def update_elements(input_cat, input_link):
             output_values.append(IDlist[labellist.index(input_value)])
 
     if input_link is None or input_link == []:
-        output_link = "IA"
+        output_link = "TS_Con"
     else:
         output_link = linkIDlist[linkparentlist.index(input_link)]
 
+    net = netObj(data)
     net.initiate_network(output_values, parent=output_link)
     elements = net.elements
     stylesheet = net.stylesheet
