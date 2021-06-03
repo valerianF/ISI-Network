@@ -161,7 +161,9 @@ def update_elements(input_cat, input_link):
     elements = net.elements
     stylesheet = net.stylesheet
 
-    children = [html.Legend(re.sub('<br>', ' ', parentlist[IDlist.index(net.parents[0])]))]
+    children = [
+        html.Legend(html.H4(html.B(re.sub('<br>', ' ', parentlist[IDlist.index(net.parents[0])]))))
+        ]
 
     for parent in net.parents:
         children.extend([
