@@ -12,6 +12,24 @@ from dash.dependencies import Input, Output
 from apps.network import netObj
 from apps.sunburst import appObj
 
+""" Local functions """
+def doi_to_url(link):
+    """ Converts the doi into a proper url.
+    If the input is a link, returns it unchanged.
+    Parameters
+    ----------
+    link : str
+        Doi number.
+    """
+    if re.match('10.', link):
+        return 'https://doi.org/' + link
+    elif re.match('DOI:', link):
+        return re.sub('DOI:', 'https://doi.org/', link)
+    elif re.match('doi:', link):
+        return re.sub('doi:', 'https://doi.org/', link)
+    else:
+        return link
+
 """ External Stylesheet """
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -72,7 +90,7 @@ app.layout = html.Div([
         className = 'legend'
     ),
 
-    html.P(style={'paddingBottom': '0cm'}),  
+    html.P(style={'paddingBottom': '0cm'}), 
 
     html.Div([
         html.Div([
@@ -108,7 +126,11 @@ app.layout = html.Div([
                         }
             ),
         ], style={'width': '49%', 'display': 'inline-block', 'margin-left': '2%'}),
-    ])
+    ]),
+    
+    html.P(style={'paddingBottom': '0cm'}),  
+
+    html.Div(id='hover_node')
 
 ])
 
@@ -130,7 +152,7 @@ def update_elements(input_cat, input_link):
             output_values.append(IDlist[labellist.index(input_value)])
 
     if input_link is None or input_link == []:
-        output_link = "TS_Con"
+        output_link = "CO"
     else:
         output_link = linkIDlist[linkparentlist.index(input_link)]
 
@@ -148,6 +170,32 @@ def update_elements(input_cat, input_link):
         ])
 
     return elements, stylesheet, [html.Fieldset(children)]
+
+@app.callback(
+    Output('hover_node', 'children'),
+    [Input('main-network', 'tapNodeData')])
+def tap_node_data(tapdata):
+
+    if tapdata is not None:
+        for i in range(0, len(data)):
+            if data.iloc[i]['Name'] == tapdata['label']:
+                break
+
+        row = []
+        for col in data.columns[[1, 2, 6, 5, 3]]:
+            value = data.iloc[i][col]
+            if col == 'Hyperlink':
+                cell = html.Td(html.A(href=doi_to_url(value), children='Click Here', target='_blank'))                    
+            else:
+                cell = html.Td(value)
+            row.append(cell)
+        return [
+            html.H5("You recently tapped this installation:"),
+            html.Table(
+                [html.Th(col) for col in data.columns[[1, 2, 6, 5, 3]]]
+                + [html.Tr(row)]
+            )
+        ]
 
 if __name__ == '__main__':
     app.run_server(debug=True)

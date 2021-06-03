@@ -158,8 +158,8 @@ class netObj:
             selector = 'edge.bezier',
             style = {
                 "curve-style": "unbundled-bezier",
-                "control-point-distances": 120,
-                "control-point-weights": 0.1              
+                "control-point-distances": 8,
+                "control-point-weights": 0.5              
             }
         ))
 
@@ -167,8 +167,16 @@ class netObj:
             selector = 'edge.bezier1',
             style = {
                 "curve-style": "unbundled-bezier",
-                "control-point-distances": 150,
-                "control-point-weights": 0.4              
+                "control-point-distances": -8,
+                "control-point-weights": 0.5             
             }
+        ))
+
+        self.stylesheet.append(dict(
+            selector = ':selected',
+            style = {
+                "border-width": 4,
+                "background-color": "black"
+                }
         ))
 
