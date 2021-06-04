@@ -115,6 +115,14 @@ class netObj:
                                     " " + 'bezier1'
                                 ))
 
+        # self.elements.append(dict(
+        #     data=dict(
+        #         id=self.parents[0],
+        #         label=self.parents[0]
+        #     ),
+        # classes= self.colors[0]
+        # ))
+
         # Generate Stylesheets
         for i in range(len(self.elements)):
             try:
@@ -179,4 +187,16 @@ class netObj:
                 "background-color": "black"
                 }
         ))
+
+        # self.stylesheet.append(dict(
+        #     selector = '$node > node' + self.colors[0],
+        #     style = {
+        #         'background-color': self.colors[0],
+        #         'background-opacity': '0.2',
+        #         'shape': 'roundrectangle',
+        #         'text-background-color': self.colors[0],
+        #         'text-background-opacity': '0.2',
+        #         'border-width': 0.2,
+        #     }
+        # ))
 
