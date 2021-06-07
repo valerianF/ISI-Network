@@ -157,7 +157,7 @@ def update_elements(input_cat, input_link):
         output_link = linkIDlist[linkparentlist.index(input_link)]
 
     net = netObj(data)
-    net.initiate_network(output_values, parent=output_link)
+    net.create_network(output_values, parent=output_link)
     elements = net.elements
     stylesheet = net.stylesheet
 

@@ -10,7 +10,7 @@ class netObj:
         self.colors = []
         self.parents = []
 
-    def initiate_network(self, keys, parent=None):
+    def create_network(self, keys, parent=None):
         """ Create network parents and children nodes and edges. 
 
         Parameters
@@ -28,7 +28,8 @@ class netObj:
         self.elements = []
         self.stylesheet = []
         shared_parents = []
-        is_compound = []
+        # compound_parents = []
+        nodes_ind = []
 
         # Initialize parents list
         for col in self.data:
@@ -39,149 +40,89 @@ class netObj:
                         if self.data.loc[i, col] == 1:
                             if col not in self.parents:
                                 self.parents.append(col)
-                                is_compound.append(False)
 
-        # Prior evaluation of shared parents
-        array = np.linspace(0, self.len-1, self.len, dtype=int)
-        for i in range(self.len):
-            values_i = [self.data.loc[i, key] for key in keys]
-            if all(v == 1 for v in values_i):
-                array = np.delete(array, np.where(array == i))
-                node_parent_i = []
-
-                # Evaluate Node's parent(s)
-                for col in self.parents:
-                    if self.data.loc[i, col] == 1:
-                        node_parent_i.append(col)
-
-                # Continue if node doesn't have any parent
-                if node_parent_i == []:
-                    continue
-                
-                # Evaluate remaining installations for siblings
-                for j in array:
-                    values_j = [self.data.loc[j, key] for key in keys]
-                    if all(v == 1 for v in values_j):
-                        node_parent_j = []
-
-                        # Evaluate Node's parent(s)
-                        for col in self.parents:
-                            if self.data.loc[j, col] == 1:
-                                node_parent_j.append(col)
-
-                        if (any([p in node_parent_i for p in node_parent_j])):
-                            n_p = 0
-                            for p in node_parent_i:
-                                if p in node_parent_j:
-                                    n_p += 1
-                                    shared_parents.append(p)
+        # Determine filtered installations' position in list
+        for n in range(self.len):
+            values = [self.data.loc[n, key] for key in keys]
+            if all(v == 1 for v in values):
+                nodes_ind.append(n)
         
-        # Node and Edge elements
-        array = np.linspace(0, self.len-1, self.len, dtype=int)
-        for i in range(self.len):
-            values_i = [self.data.loc[i, key] for key in keys]
-            if all(v == 1 for v in values_i):
-                array = np.delete(array, np.where(array == i))
-                node_parent_i = []
-
-                # Evaluate Node's parent(s)
-                for col in self.parents:
-                    if self.data.loc[i, col] == 1:
-                        node_parent_i.append(col)
-               
-                # Add Node
-                self.elements.append(dict(
-                    data=dict(
-                        id=self.data.loc[i, 'ID'],
-                        label=self.data.loc[i, 'Name'],
-                        parent=node_parent_i
-                    # grabbable=False
-                    )
-                ))
-
-                # Continue if node doesn't have any parent
-                if node_parent_i == []:
-                    continue
-
-                
-                # Evaluate remaining installations for siblings
+        # Prior evaluation of shared parents
+        array = np.array(nodes_ind)
+        for i in nodes_ind:
+            array = np.delete(array, np.where(array == i))
+            node_parent_i = self.evaluate_parents(i)
+            if node_parent_i != []:
                 for j in array:
-                    values_j = [self.data.loc[j, key] for key in keys]
-                    if all(v == 1 for v in values_j):
-                        node_parent_j = []
+                    node_parent_j = self.evaluate_parents(j)
+                    if node_parent_j != []:               
+                        for p_i in node_parent_i:
+                            for p_j in node_parent_j:
+                                if p_i == p_j:
+                                    shared_parents.append(p_i)
 
-                        # Evaluate Node's parent(s)
-                        for col in self.parents:
-                            if self.data.loc[j, col] == 1:
-                                node_parent_j.append(col)
+        # # Determine which category to set as a compound
+        # for parent in self.parents:
+        #     if shared_parents.count(parent) > 5:
+        #         compound_parents.append(parent)
+  
+        # Add nodes
+        for i in nodes_ind:
+            node_parent_i = self.evaluate_parents(i)
+            self.elements.append(dict(
+                data=dict(
+                    id=self.data.loc[i, 'ID'],
+                    label=self.data.loc[i, 'Name'],
+                    parent=node_parent_i
+                # grabbable=False
+                )
+            ))
+        
+        # Edge elements
+        array = np.array(nodes_ind)
+        for i in nodes_ind:
+            array = np.delete(array, np.where(array == i))
+            node_parent_i = self.evaluate_parents(i)
 
-                        if (any([p in node_parent_i for p in node_parent_j])):
-                            n_p = 0
-                            for p in node_parent_j:
-                                if p in node_parent_i:
-                                    n_p += 1
+            # Continue if node doesn't have any parents 
+            if node_parent_i == []:
+                continue
+            
+            # Evaluate remaining installations for siblings
+            for j in array:
+                node_parent_j = self.evaluate_parents(j)                  
 
-                            if shared_parents.count(node_parent_i[0]) < 5:
-                                # Add Edges for Nodes with same parent
-                                self.elements.append(dict(
-                                data=dict(
-                                    source=self.data.loc[i, 'ID'],
-                                    target=self.data.loc[j, 'ID'],
-                                    label=node_parent_i[0]
-                                ),
-                                classes= self.colors[self.parents.index(node_parent_i[0])]
-                                ))
-                                if n_p == 2:
-                                    if shared_parents.count(node_parent_i[1]) < 5:
-                                        self.elements.append(dict(
-                                        data=dict(
-                                            source=self.data.loc[i, 'ID'],
-                                            target=self.data.loc[j, 'ID'],
-                                            label=node_parent_i[1]
-                                        ),
-                                        classes= self.colors[self.parents.index(node_parent_i[1])] +
-                                            " " + 'bezier'
-                                        ))
-                                    else:
-                                        is_compound[self.parents.index(node_parent_i[1])] = True
+                n_p = len(set(node_parent_i) & set(node_parent_j))
 
-                                if n_p == 3:
-                                    if shared_parents.count(node_parent_i[2]) < 5:
-                                        self.elements.append(dict(
-                                        data=dict(
-                                            source=self.data.loc[i, 'ID'],
-                                            target=self.data.loc[j, 'ID'],
-                                            label=node_parent_i[2]
-                                        ),
-                                        classes= self.colors[self.parents.index(node_parent_i[2])] +
-                                            " " + 'bezier1'
-                                        ))
-                                    else:
-                                        is_compound[self.parents.index(node_parent_i[2])] = True
-                            else:
-                                is_compound[self.parents.index(node_parent_i[0])] = True
+                # Add Edges for Nodes with same parent
+                if n_p > 0:
+                    self.add_edge(i, j, node_parent_i[0])
+                if n_p > 1:
+                    self.add_edge(i, j, node_parent_i[1], " bezier")
+                if n_p > 2:
+                    self.add_edge(i, j, node_parent_i[2], " bezier1")
 
-        for i in range(len(is_compound)):
-            if is_compound[i]:
-                self.elements.append(dict(
-                                    data=dict(
-                                        id=self.parents[i]
-                                    ),
-                                classes= self.colors[i]
-                                ))
-                self.stylesheet.append(dict(
-                    selector = '$node > node' + self.colors[i],
-                    style = {
-                        'background-color': self.colors[i],
-                        'background-opacity': '0.2',
-                        'shape': 'roundrectangle',
-                        'text-background-color': self.colors[i],
-                        'text-background-opacity': '0.2',
-                        'border-width': 0.2,
-                    }
-                ))
-                                
-        # Generate Stylesheets
+        # # Generate Compound Elements and Stylesheets
+        # if compound_parents != []:
+        #     for parent in compound_parents:
+        #         self.elements.append(dict(
+        #                             data=dict(
+        #                                 id=parent
+        #                             ), 
+        #                         classes= self.colors[self.parents.index(parent)]
+        #                         ))
+        #         self.stylesheet.append(dict(
+        #             selector = '$node > node' + self.colors[self.parents.index(parent)],
+        #             style = {
+        #                 'background-color': self.colors[self.parents.index(parent)],
+        #                 'background-opacity': '0.2',
+        #                 'shape': 'roundrectangle',
+        #                 'text-background-color': self.colors[self.parents.index(parent)],
+        #                 'text-background-opacity': '0.2',
+        #                 'border-width': 0.2,
+        #             }
+        #         ))
+                        
         for i in range(len(self.elements)):
             try:
                 for j in range(len(self.elements[i]['data']['parent'])):
@@ -213,7 +154,7 @@ class netObj:
                 'border-color': 'black',
                 'color': 'black',
                 'text-background-color': 'white',
-                'text-background-opacity': '1',
+                'text-background-opacity': '0.7',
                 'text-backgroun-shape': 'round-rectangle',
                 'text-margin-y': '-5px',
                 'font-family': 'FontBold, sans-serif'
@@ -244,5 +185,22 @@ class netObj:
                 "border-width": 4,
                 "background-color": "black"
                 }
+        ))
+
+    def evaluate_parents(self, n):
+        node_parent = []
+        for col in self.parents:
+            if self.data.loc[n, col] == 1:
+                node_parent.append(col)
+        return node_parent
+
+    def add_edge(self, i, j, node_parent_i, classes = ""):
+        self.elements.append(dict(
+        data=dict(
+            source=self.data.loc[i, 'ID'],
+            target=self.data.loc[j, 'ID'],
+            label=node_parent_i
+        ),
+        classes= self.colors[self.parents.index(node_parent_i)] + classes
         ))
 
