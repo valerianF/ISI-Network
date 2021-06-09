@@ -77,13 +77,15 @@ app.layout = html.Div([
                 'name':'cose',
                 'nodeDimensionsIncludeLabels': 'true'
                 },
-            style={'width': '100%', 'height': '800px'},
+            style={},
             elements = [],
             stylesheet = [],
             minZoom=0.3,
             maxZoom=1
         )
     ]),
+
+    html.Div(id='hover_node'),
 
     html.Div(
         id='network-legend',
@@ -128,16 +130,15 @@ app.layout = html.Div([
         ], style={'width': '49%', 'display': 'inline-block', 'margin-left': '2%'}),
     ]),
     
-    html.P(style={'paddingBottom': '0cm'}),  
-
-    html.Div(id='hover_node')
+    html.P(style={'paddingBottom': '0cm'})
 
 ])
 
 @app.callback([
     Output('main-network', 'elements'),
     Output('main-network', 'stylesheet'),
-    Output('network-legend', 'children')
+    Output('network-legend', 'children'),
+    Output('main-network', 'style')
     ], [Input('dropdown_filter', 'value'),
     Input('dropdown_link', 'value')])
 def update_elements(input_cat, input_link):
@@ -145,33 +146,32 @@ def update_elements(input_cat, input_link):
     output_values = []
     output_link = ""
 
-    if input_cat is None or input_cat == []:
-        output_values = ['SG_Obj_Mecha']
-    else:
+    if (input_cat is not None and input_cat != []) and (input_link is not None and input_link != []):
+        
         for input_value in input_cat:
-            output_values.append(IDlist[labellist.index(input_value)])
+            output_values.append(IDlist[labellist.index(input_value)]) 
 
-    if input_link is None or input_link == []:
-        output_link = "CO"
+        output_link = linkIDlist[linkparentlist.index(input_link)]       
+        
+        net = netObj(data)
+        net.create_network(output_values, parent=output_link)
+        elements = net.elements
+        stylesheet = net.stylesheet
+
+        children = [
+            html.Legend(html.H4(html.B(re.sub('<br>', ' ', parentlist[IDlist.index(net.parents[0])]))))
+            ]
+
+        for parent in net.parents:
+            children.extend([
+                html.Span(className=net.colors[net.parents.index(parent)]),
+                html.Li(re.sub('<br>', ' ', labellist[IDlist.index(parent)]))
+            ])
+
+        return elements, stylesheet, [html.Fieldset(children)], {'width': '100%', 'height': '800px'}
     else:
-        output_link = linkIDlist[linkparentlist.index(input_link)]
-
-    net = netObj(data)
-    net.create_network(output_values, parent=output_link)
-    elements = net.elements
-    stylesheet = net.stylesheet
-
-    children = [
-        html.Legend(html.H4(html.B(re.sub('<br>', ' ', parentlist[IDlist.index(net.parents[0])]))))
-        ]
-
-    for parent in net.parents:
-        children.extend([
-            html.Span(className=net.colors[net.parents.index(parent)]),
-            html.Li(re.sub('<br>', ' ', labellist[IDlist.index(parent)]))
-        ])
-
-    return elements, stylesheet, [html.Fieldset(children)]
+        return [], [], [html.H2("""Please select a category to link installations and a category to filter installations
+            on the dropdown lists below.""")], {'width': '100%', 'height': '0px'}
 
 @app.callback(
     Output('hover_node', 'children'),

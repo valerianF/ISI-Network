@@ -10,7 +10,7 @@ class netObj:
         self.colors = []
         self.parents = []
 
-    def create_network(self, keys, parent=None):
+    def create_network(self, keys=None, parent=None):
         """ Create network parents and children nodes and edges. 
 
         Parameters
@@ -31,6 +31,35 @@ class netObj:
         # compound_parents = []
         nodes_ind = []
 
+        # Stylesheets that are always there
+        self.stylesheet.append(dict(
+            selector = 'node',
+            style = {
+                'label': 'data(label)',
+                'border-width': '3',
+                'border-style': 'solid',
+                'border-color': 'black',
+                'color': 'black',
+                'text-background-color': 'white',
+                'text-background-opacity': '0.7',
+                'text-backgroun-shape': 'round-rectangle',
+                'text-margin-y': '-5px',
+                'font-family': 'FontBold, sans-serif'
+            }
+        ))
+
+        self.stylesheet.append(dict(
+            selector = ':selected',
+            style = {
+                "border-width": 10,
+                'background-color': 'white'
+                }
+        ))
+
+        # Return empty elements and stylesheet if no filters
+        if (keys == None or keys == []) and (parent == None or parent == []):
+            return
+
         # Initialize parents list
         for col in self.data:
             if parent in col:
@@ -42,10 +71,13 @@ class netObj:
                                 self.parents.append(col)
 
         # Determine filtered installations' position in list
-        for n in range(self.len):
-            values = [self.data.loc[n, key] for key in keys]
-            if all(v == 1 for v in values):
-                nodes_ind.append(n)
+        if keys == [] or keys is None:
+            nodes_ind = np.linspace(0, self.len-1, self.len)
+        else:
+            for n in range(self.len):
+                values = [self.data.loc[n, key] for key in keys]
+                if all(v == 1 for v in values):
+                    nodes_ind.append(n)
         
         # Prior evaluation of shared parents
         array = np.array(nodes_ind)
@@ -61,7 +93,7 @@ class netObj:
                                 if p_i == p_j:
                                     shared_parents.append(p_i)
 
-        # # Determine which category to set as a compound
+        # Determine which category to set as a compound
         # for parent in self.parents:
         #     if shared_parents.count(parent) > 5:
         #         compound_parents.append(parent)
@@ -77,6 +109,11 @@ class netObj:
                 # grabbable=False
                 )
             ))
+
+
+        # Return only nodes if no parents
+        if parent == None or parent == []:
+            return
         
         # Edge elements
         array = np.array(nodes_ind)
@@ -92,17 +129,20 @@ class netObj:
             for j in array:
                 node_parent_j = self.evaluate_parents(j)                  
 
-                n_p = len(set(node_parent_i) & set(node_parent_j))
+                n_p = 0
+                for p_i in node_parent_i:
+                    for p_j in node_parent_j:
+                        if p_i == p_j:
+                            n_p += 1
+                            # Add Edges for Nodes with same parent
+                            if n_p == 1:
+                                self.add_edge(i, j, p_j)
+                            if n_p == 2:
+                                self.add_edge(i, j, p_j, " bezier")
+                            if n_p == 3:
+                                self.add_edge(i, j, p_j, " bezier1")
 
-                # Add Edges for Nodes with same parent
-                if n_p > 0:
-                    self.add_edge(i, j, node_parent_i[0])
-                if n_p > 1:
-                    self.add_edge(i, j, node_parent_i[1], " bezier")
-                if n_p > 2:
-                    self.add_edge(i, j, node_parent_i[2], " bezier1")
-
-        # # Generate Compound Elements and Stylesheets
+        # Generate Compound Elements and Stylesheets
         # if compound_parents != []:
         #     for parent in compound_parents:
         #         self.elements.append(dict(
@@ -144,22 +184,6 @@ class netObj:
                     'line-color': self.colors[self.parents.index(parent)]
                 }
             ))
-        
-        self.stylesheet.append(dict(
-            selector = 'node',
-            style = {
-                'label': 'data(label)',
-                'border-width': '3',
-                'border-style': 'solid',
-                'border-color': 'black',
-                'color': 'black',
-                'text-background-color': 'white',
-                'text-background-opacity': '0.7',
-                'text-backgroun-shape': 'round-rectangle',
-                'text-margin-y': '-5px',
-                'font-family': 'FontBold, sans-serif'
-            }
-        ))
 
         self.stylesheet.append(dict(
             selector = 'edge.bezier',
@@ -179,14 +203,6 @@ class netObj:
             }
         ))
 
-        self.stylesheet.append(dict(
-            selector = ':selected',
-            style = {
-                "border-width": 4,
-                "background-color": "black"
-                }
-        ))
-
     def evaluate_parents(self, n):
         node_parent = []
         for col in self.parents:
@@ -194,13 +210,13 @@ class netObj:
                 node_parent.append(col)
         return node_parent
 
-    def add_edge(self, i, j, node_parent_i, classes = ""):
+    def add_edge(self, i, j, node_parent, classes = ""):
         self.elements.append(dict(
         data=dict(
             source=self.data.loc[i, 'ID'],
             target=self.data.loc[j, 'ID'],
-            label=node_parent_i
+            label=node_parent
         ),
-        classes= self.colors[self.parents.index(node_parent_i)] + classes
+        classes= self.colors[self.parents.index(node_parent)] + classes
         ))
 
