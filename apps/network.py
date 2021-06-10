@@ -41,7 +41,7 @@ class netObj:
                 'border-color': 'black',
                 'color': 'black',
                 'text-background-color': 'white',
-                'text-background-opacity': '0.7',
+                'text-background-opacity': '0.8',
                 'text-backgroun-shape': 'round-rectangle',
                 'text-margin-y': '-5px',
                 'font-family': 'FontBold, sans-serif'

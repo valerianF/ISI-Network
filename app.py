@@ -70,6 +70,9 @@ linkparentlist = [x for x in linkparentlist if x not in
 
 """ Application Layout """
 app.layout = html.Div([
+
+    html.H2('Interactive Sound Installations Database | Network Visualization Prototype'),
+
     html.Div([
         cyto.Cytoscape(
             id='main-network',
@@ -77,7 +80,7 @@ app.layout = html.Div([
                 'name':'cose',
                 'nodeDimensionsIncludeLabels': 'true'
                 },
-            style={},
+            style={'font-family': 'FontBold, sans-serif'},
             elements = [],
             stylesheet = [],
             minZoom=0.3,
@@ -168,10 +171,10 @@ def update_elements(input_cat, input_link):
                 html.Li(re.sub('<br>', ' ', labellist[IDlist.index(parent)]))
             ])
 
-        return elements, stylesheet, [html.Fieldset(children)], {'width': '100%', 'height': '800px'}
+        return elements, stylesheet, [html.Fieldset(children)], {'width': '100%', 'height': '70vh'}
     else:
-        return [], [], [html.H2("""Please select a category to link installations and a category to filter installations
-            on the dropdown lists below.""")], {'width': '100%', 'height': '0px'}
+        return [], [], [html.H4("""Please select a category to link installations and a category to filter installations
+            on the dropdown lists below.""")], {'width': '100%', 'height': '0vh'}
 
 @app.callback(
     Output('hover_node', 'children'),
