@@ -78,7 +78,7 @@ class appObj:
              "SP", "SP", "SP", "SP", "SG"]
             self.subs = ["TS_Ele", "TS_Mec", "TS_Ide", "TS_Mic", "TS_Ima", "TS_Bio", "TS_Con", "TS_Det", 
             "TS_Env", "SP_Num", "SP_Hea", "SP_Pnt", "SP_Cnt", "SP_Dir", "SG_Obj"]
-            self.labels = ["System<br>Design", "Type of<br>Input Device", "Spatialization", "Sound<br>Generation",
+            self.labels = ["System<br>Design", "Type of<br>Input Device", "Spatialization", "Sound<br>Sources",
               "Electric,<br>Magnetic Sensors", "Force and<br>Pressure Sensors", "Identification", "Microphones",
               "Image<br>Sensors", "Bio-signals<br>Sensors", "Controllers", "Detectors", "Environment",
               "Number of<br>Sources", "Headphones", "Diffusion<br>Orientation", "Control",
@@ -91,8 +91,8 @@ class appObj:
               "Fingerprint<br>Sensor", "Eletromyograph", "Electroencephalograph", "Remote Motion<br>Tracker",
               "Novint<br>Falcon", "Game<br>Controller", "Touch-Sensitive<br>Device", "Mouse and<br>Keyboard", 
               "Pressure<br>Pad", "Proximity<br>Sensor", "Light<br>Sensor", "Heat<br>Sensor", "Wind<br>Sensor", "Seismograph", 
-              "One   ", "Two   ", "Multiple<br>Sources", "Stereo", "Towards the<br>Same Point",
-              "Towards<br>Different Points", "Dynamic  ", "Channel-Based", "Automated<br>Spatialization", "Directive", "Non<br>Directive",
+              "One Source", "Two Sources", "Multiple<br>Sources", "Stereo<br>Headphones", "Diffusion<br>Towards the<br>Same Point",
+              "Diffusion<br>Towards<br>Different Points", "Dynamic<br>Diffusion", "Channel-Based<br>Control", "Automated<br>Spatialization", "Directive", "Non<br>Directive",
               "Speakers", "Electronic", "Mechanical", "Resonant", "Musical<br>Instrument"]
             
         elif self.name == 'Interaction':

@@ -48,3 +48,7 @@ h1, h2, h3, h4, h5, h6 {
 .legend .yellow { background-color: yellow; }
 .legend .brown { background-color: brown; }
 .legend .cyan { background-color: cyan; }
+.legend .darkolivegreen { background-color: darkoliveGreen; }
+.legend .dimgray { background-color: dimgray; }
+.legend .indigo { background-color: indigo; }
+.legend .goldenrod { background-color: goldenrod; }

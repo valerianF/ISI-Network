@@ -55,17 +55,22 @@ SD.initiate_arrays()
 IN.initiate_arrays()
 FI.initiate_arrays()
 
+""" Define categories for composite links """
+multi_cats = ["TS_"]
+
 labellist = AI.labels[12:] + IN.labels[7:] + SD.labels[18:] + FI.labels[13:]
 IDlist = AI.df['ids'][12:].tolist() + IN.df['ids'][7:].tolist() + SD.df['ids'][18:].tolist() + FI.labels[13:]
 parentlist = AI.parentslabels[12:] + IN.parentslabels[7:] + SD.parentslabels[18:] + FI.parents[13:]
 
-linkIDlist = AI.df['ids'][1:12].tolist() + IN.df['ids'][1:7].tolist() + SD.df['ids'][1:18].tolist()
+linkIDlist0 = AI.df['ids'][1:12].tolist() + IN.df['ids'][1:7].tolist() + SD.df['ids'][1:18].tolist()
 linkparentlist = AI.labels[1:12] + IN.labels[1:7] + SD.labels[1:18]
 
-linkIDlist = [x for x in linkIDlist if x not in ['LS', 'SP', 'TS', 'IT', 'SD', 'SG']]
-linkparentlist = [x for x in linkparentlist if x not in 
-    ["Visitor\'s<br>Position", "Spatialization", "Type of<br>Input Device", 
-    "Interaction<br>Type", "Sound<br>Design", "Sound<br>Generation"]]
+linkIDlist = [x for x in linkIDlist0 if (x not in ['LS', 'IT', 'SD'] and not x.startswith(tuple(multi_cats)))]
+linkparentlist = [x for x in linkparentlist if linkparentlist.index(x) in [linkIDlist0.index(n) for n in linkIDlist]]
+
+compIDlist = ['TS_Ima', 'TS_Con', 'TS_Det', 'TS_Ide', 'TS_Ser', 'TS_Mic', 'TS_Mec', 'TS_Env', 'TS_Bio', 'TS_Ele']
+complabellist = ['Image Sensors', 'Controllers', 'Detectors', 'Identification', 'Server-Client', 'Microphones',
+    'Force and Pressure Sensors', 'Environment Sensors', 'Bio-Signals Sensors', 'Electric, Magnetic Sensors']
 
 
 """ Application Layout """
@@ -160,6 +165,21 @@ def update_elements(input_cat, input_link):
         net.create_network(output_values, parent=output_link)
         elements = net.elements
         stylesheet = net.stylesheet
+
+        for cat in multi_cats:
+            if output_link == cat[0:2]:
+                children = [
+                    html.Legend(html.H4(html.B(re.sub('<br>', ' ', linkparentlist[linkIDlist.index(cat[0:2])]))))
+                    ]
+                for parent in net.parents:
+                    children.extend([
+                        html.Span(className=net.colors[net.parents.index(parent)]),
+                        html.Li(re.sub('<br>', ' ', complabellist[compIDlist.index(parent)]))
+                    ])
+                return elements, stylesheet, [html.Fieldset(children)], {'width': '100%', 'height': '70vh'}
+
+            else:
+                continue
 
         children = [
             html.Legend(html.H4(html.B(re.sub('<br>', ' ', parentlist[IDlist.index(net.parents[0])]))))

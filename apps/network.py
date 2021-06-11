@@ -24,12 +24,14 @@ class netObj:
 
         self.parents = []
         parents_f = []
-        self.colors = ['red', 'blue', 'green','magenta', 'cyan', 'black', 'yellow', 'brown']
+        self.colors = ['red', 'blue', 'green','magenta', 'cyan', 'black', 'indigo', 'yellow',
+            'darkolivegreen', 'dimgray', 'goldenrod']
         self.elements = []
         self.stylesheet = []
         shared_parents = []
         # compound_parents = []
         nodes_ind = []
+        self.multi_cats = ["TS"] #Categories for which we only want to assess sub-category
 
         # Stylesheets that are always there
         self.stylesheet.append(dict(
@@ -68,7 +70,12 @@ class netObj:
                     if all(v == 1 for v in values_i):
                         if self.data.loc[i, col] == 1:
                             if col not in self.parents:
-                                self.parents.append(col)
+                                if parent not in self.multi_cats: # or col == "TS_Server":
+                                    self.parents.append(col)
+                                else:
+                                    self.parents.append(col[0:6])
+
+        self.parents = list(set(self.parents))
 
         # Determine filtered installations' position in list
         if keys == [] or keys is None:
@@ -141,6 +148,10 @@ class netObj:
                                 self.add_edge(i, j, p_j, " bezier")
                             if n_p == 3:
                                 self.add_edge(i, j, p_j, " bezier1")
+                            if n_p == 4:
+                                self.add_edge(i, j, p_j, " bezier2")
+                            if n_p == 5:
+                                self.add_edge(i, j, p_j, " bezier3")
 
         # Generate Compound Elements and Stylesheets
         # if compound_parents != []:
@@ -203,12 +214,32 @@ class netObj:
             }
         ))
 
+        self.stylesheet.append(dict(
+            selector = 'edge.bezier2',
+            style = {
+                "curve-style": "unbundled-bezier",
+                "control-point-distances": -16,
+                "control-point-weights": 0.5             
+            }
+        ))
+
+        self.stylesheet.append(dict(
+            selector = 'edge.bezier3',
+            style = {
+                "curve-style": "unbundled-bezier",
+                "control-point-distances": 16,
+                "control-point-weights": 0.5             
+            }
+        ))
+
     def evaluate_parents(self, n):
         node_parent = []
         for col in self.parents:
-            if self.data.loc[n, col] == 1:
-                node_parent.append(col)
-        return node_parent
+            for column in self.data.columns:
+                if col in column:
+                    if self.data.loc[n, column] == 1:
+                        node_parent.append(col)
+        return list(set(node_parent))
 
     def add_edge(self, i, j, node_parent, classes = ""):
         self.elements.append(dict(
