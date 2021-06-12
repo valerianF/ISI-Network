@@ -101,7 +101,7 @@ class appObj:
             self.subs = ["IT_Use", "IT_Ada"]
             self.labels = ["Interaction", "Inter-Actors", "Input Degrees<br>Of Freedom", "Output Degrees<br>Of Freedom",
               "Feedback<br>Type", "Musical<br>Control", "Interaction<br>Type", "User<br>Interaction", "Adaptive", "Many", "Few", "One", "Countless", "None",
-              "One  ", "Two ", "Three or<br>More ", "One ", "Two", "Three or<br>More", "Visual", "Haptic", "Auditory",
+              "One Input", "Two Inputs", "Three or<br>More Inputs", "One Output", "Two Ouputs", "Three or<br>More Outputs", "Visual", "Haptic", "Auditory",
               "Heat", "Taste", "Smell", "Process", "Note-Level", "Timbral", "Global<br>Activity", "Network", "Embodied",
               "Visitor's<br>Motion", "Visitor's<br>Sounds", "Eyes'<br>Movements", "Facial<br>Expression", "Brain<br>Activity",
               "Natural<br>Elements"]       

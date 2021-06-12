@@ -45,10 +45,10 @@ h1, h2, h3, h4, h5, h6 {
 .legend .green { background-color: green; }
 .legend .magenta { background-color: magenta; }
 .legend .black { background-color: black; }
-.legend .yellow { background-color: yellow; }
 .legend .brown { background-color: brown; }
 .legend .cyan { background-color: cyan; }
 .legend .darkolivegreen { background-color: darkoliveGreen; }
 .legend .dimgray { background-color: dimgray; }
 .legend .indigo { background-color: indigo; }
-.legend .goldenrod { background-color: goldenrod; }
+.legend .saddlebrown { background-color: saddlebrown; }
+.legend .darkorange { background-color: darkorange; }

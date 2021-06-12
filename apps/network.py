@@ -9,6 +9,7 @@ class netObj:
         self.stylesheet = []
         self.colors = []
         self.parents = []
+        self.cat_check = True
 
     def create_network(self, keys=None, parent=None):
         """ Create network parents and children nodes and edges. 
@@ -24,8 +25,8 @@ class netObj:
 
         self.parents = []
         parents_f = []
-        self.colors = ['red', 'blue', 'green','magenta', 'cyan', 'black', 'indigo', 'yellow',
-            'darkolivegreen', 'dimgray', 'goldenrod']
+        self.colors = ['red', 'blue', 'green','magenta', 'cyan', 'black', 'indigo', 'saddlebrown',
+            'darkolivegreen', 'dimgray', 'darkorange']
         self.elements = []
         self.stylesheet = []
         shared_parents = []
@@ -33,49 +34,32 @@ class netObj:
         nodes_ind = []
         self.multi_cats = ["TS"] #Categories for which we only want to assess sub-category
 
-        # Stylesheets that are always there
-        self.stylesheet.append(dict(
-            selector = 'node',
-            style = {
-                'label': 'data(label)',
-                'border-width': '3',
-                'border-style': 'solid',
-                'border-color': 'black',
-                'color': 'black',
-                'text-background-color': 'white',
-                'text-background-opacity': '0.8',
-                'text-backgroun-shape': 'round-rectangle',
-                'text-margin-y': '-5px',
-                'font-family': 'FontBold, sans-serif'
-            }
-        ))
-
-        self.stylesheet.append(dict(
-            selector = ':selected',
-            style = {
-                "border-width": 10,
-                'background-color': 'white'
-                }
-        ))
 
         # Return empty elements and stylesheet if no filters
         if (keys == None or keys == []) and (parent == None or parent == []):
             return
 
+        # Special parent lists
+        if parent == "SP_N":
+            parent = ['SP_Num', 'SP_Hea', 'SP_Cnt']
+        elif parent == "SP_D":
+            parent = ['SP_Pnt', 'SP_Dir']
+        elif parent == "IODof":
+            parent = ['IDof', 'ODof']
+
         # Initialize parents list
-        for col in self.data:
-            if parent in col:
-                for i in range(self.len):
-                    values_i = [self.data.loc[i, key] for key in keys]
-                    if all(v == 1 for v in values_i):
-                        if self.data.loc[i, col] == 1:
-                            if col not in self.parents:
-                                if parent not in self.multi_cats: # or col == "TS_Server":
-                                    self.parents.append(col)
-                                else:
-                                    self.parents.append(col[0:6])
+        if type(parent) == str:
+            self.init_parents(parent, keys)
+        elif type(parent) == list:
+            for p in parent:
+                self.init_parents(p, keys)
 
         self.parents = list(set(self.parents))
+
+        # If too much links are chosen
+        if len(self.parents) > len(self.colors):
+            self.cat_check = False
+            return
 
         # Determine filtered installations' position in list
         if keys == [] or keys is None:
@@ -150,8 +134,6 @@ class netObj:
                                 self.add_edge(i, j, p_j, " bezier1")
                             if n_p == 4:
                                 self.add_edge(i, j, p_j, " bezier2")
-                            if n_p == 5:
-                                self.add_edge(i, j, p_j, " bezier3")
 
         # Generate Compound Elements and Stylesheets
         # if compound_parents != []:
@@ -173,7 +155,39 @@ class netObj:
         #                 'border-width': 0.2,
         #             }
         #         ))
-                        
+
+        # Stylesheets
+        self.stylesheet.append(dict(
+            selector = 'node',
+            style = {
+                'label': 'data(label)',
+                'border-width': '3',
+                'border-style': 'solid',
+                'border-color': 'black',
+                'color': 'black',
+                'text-background-color': 'white',
+                'text-background-opacity': '0.8',
+                'text-backgroun-shape': 'round-rectangle',
+                'text-margin-y': '-5px',
+                'font-family': 'FontBold, sans-serif'
+            }
+        ))
+
+        self.stylesheet.append(dict(
+            selector = ':selected',
+            style = {
+                "border-width": 10,
+                'background-color': 'white'
+                }
+        ))
+
+        self.stylesheet.append(dict(
+            selector = ':unselected',
+            style = {
+                "border-width": 3,
+            }
+        ))
+
         for i in range(len(self.elements)):
             try:
                 for j in range(len(self.elements[i]['data']['parent'])):
@@ -223,15 +237,7 @@ class netObj:
             }
         ))
 
-        self.stylesheet.append(dict(
-            selector = 'edge.bezier3',
-            style = {
-                "curve-style": "unbundled-bezier",
-                "control-point-distances": 16,
-                "control-point-weights": 0.5             
-            }
-        ))
-
+    # Local functions
     def evaluate_parents(self, n):
         node_parent = []
         for col in self.parents:
@@ -250,4 +256,17 @@ class netObj:
         ),
         classes= self.colors[self.parents.index(node_parent)] + classes
         ))
+
+    def init_parents(self, p, keys):
+        for col in self.data:
+            if p in col:
+                for i in range(self.len):
+                    values_i = [self.data.loc[i, key] for key in keys]
+                    if all(v == 1 for v in values_i):
+                        if self.data.loc[i, col] == 1:
+                            if col not in self.parents:
+                                if p not in self.multi_cats[0]:
+                                    self.parents.append(col)
+                                elif p in self.multi_cats[0]:
+                                    self.parents.append(col[0:6])
 

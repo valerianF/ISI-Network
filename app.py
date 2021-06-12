@@ -56,8 +56,9 @@ IN.initiate_arrays()
 FI.initiate_arrays()
 
 """ Define categories for composite links """
-multi_cats = ["TS_"]
+multi_cats = ["TS_", "LS_", "SD_"]
 
+""" Setting lists. Hard to automatize..."""
 labellist = AI.labels[12:] + IN.labels[7:] + SD.labels[18:] + FI.labels[13:]
 IDlist = AI.df['ids'][12:].tolist() + IN.df['ids'][7:].tolist() + SD.df['ids'][18:].tolist() + FI.labels[13:]
 parentlist = AI.parentslabels[12:] + IN.parentslabels[7:] + SD.parentslabels[18:] + FI.parents[13:]
@@ -65,7 +66,7 @@ parentlist = AI.parentslabels[12:] + IN.parentslabels[7:] + SD.parentslabels[18:
 linkIDlist0 = AI.df['ids'][1:12].tolist() + IN.df['ids'][1:7].tolist() + SD.df['ids'][1:18].tolist()
 linkparentlist = AI.labels[1:12] + IN.labels[1:7] + SD.labels[1:18]
 
-linkIDlist = [x for x in linkIDlist0 if (x not in ['LS', 'IT', 'SD'] and not x.startswith(tuple(multi_cats)))]
+linkIDlist = [x for x in linkIDlist0 if (x not in ['IT', 'SP', 'IDof', 'ODof'] and not x.startswith(tuple(multi_cats)))]
 linkparentlist = [x for x in linkparentlist if linkparentlist.index(x) in [linkIDlist0.index(n) for n in linkIDlist]]
 
 compIDlist = ['TS_Ima', 'TS_Con', 'TS_Det', 'TS_Ide', 'TS_Ser', 'TS_Mic', 'TS_Mec', 'TS_Env', 'TS_Bio', 'TS_Ele']
@@ -93,8 +94,6 @@ app.layout = html.Div([
         )
     ]),
 
-    html.Div(id='hover_node'),
-
     html.Div(
         id='network-legend',
         className = 'legend'
@@ -112,8 +111,8 @@ app.layout = html.Div([
                     'value': linkparentlist[i]
                     } for i in range(0, len(linkparentlist))
                     ],
-                multi=False, # A single category to filter installations
-                placeholder="Select a category to link installations",
+                multi=True, # A single category to filter installations
+                placeholder="Select one or more categories to link installations",
                 style={
                         'height': '200%'
                         }
@@ -138,7 +137,9 @@ app.layout = html.Div([
         ], style={'width': '49%', 'display': 'inline-block', 'margin-left': '2%'}),
     ]),
     
-    html.P(style={'paddingBottom': '0cm'})
+    html.P(style={'paddingBottom': '0cm'}),
+
+    html.Div(id='hover_node')
 
 ])
 
@@ -152,56 +153,61 @@ app.layout = html.Div([
 def update_elements(input_cat, input_link):
 
     output_values = []
-    output_link = ""
+    output_link = []
+    legend = ""
+    content = []
 
     if (input_cat is not None and input_cat != []) and (input_link is not None and input_link != []):
         
         for input_value in input_cat:
             output_values.append(IDlist[labellist.index(input_value)]) 
 
-        output_link = linkIDlist[linkparentlist.index(input_link)]       
+        for link in input_link:
+            output_link.append(linkIDlist[linkparentlist.index(link)])    
         
         net = netObj(data)
         net.create_network(output_values, parent=output_link)
+
+        if not net.cat_check:
+            return [], [], [html.H4("""You have chosen too many categories to link installations. Try to remove one or more categories.""")], {'width': '100%', 'height': '0vh'}
+
         elements = net.elements
         stylesheet = net.stylesheet
 
-        for cat in multi_cats:
-            if output_link == cat[0:2]:
-                children = [
-                    html.Legend(html.H4(html.B(re.sub('<br>', ' ', linkparentlist[linkIDlist.index(cat[0:2])]))))
-                    ]
-                for parent in net.parents:
-                    children.extend([
-                        html.Span(className=net.colors[net.parents.index(parent)]),
-                        html.Li(re.sub('<br>', ' ', complabellist[compIDlist.index(parent)]))
-                    ])
-                return elements, stylesheet, [html.Fieldset(children)], {'width': '100%', 'height': '70vh'}
-
+        for link in output_link:
+            if output_link == 'TS':
+                legend += ' | Type of Input Device'
             else:
-                continue
+                legend += ' | ' + re.sub('<br>', ' ', linkparentlist[linkIDlist.index(link)])
+
+        legend = legend[2:]
 
         children = [
-            html.Legend(html.H4(html.B(re.sub('<br>', ' ', parentlist[IDlist.index(net.parents[0])]))))
-            ]
+            html.Legend(html.H4(html.B(legend)))
+        ]
 
         for parent in net.parents:
-            children.extend([
-                html.Span(className=net.colors[net.parents.index(parent)]),
-                html.Li(re.sub('<br>', ' ', labellist[IDlist.index(parent)]))
-            ])
+            if 'TS' in parent:
+                children.extend([
+                    html.Span(className=net.colors[net.parents.index(parent)]),
+                    html.Li(re.sub('<br>', ' ', complabellist[compIDlist.index(parent)]))
+                ])
+            else:
+                children.extend([
+                    html.Span(className=net.colors[net.parents.index(parent)]),
+                    html.Li(re.sub('<br>', ' ', labellist[IDlist.index(parent)]))
+                ])
 
         return elements, stylesheet, [html.Fieldset(children)], {'width': '100%', 'height': '70vh'}
     else:
-        return [], [], [html.H4("""Please select a category to link installations and a category to filter installations
-            on the dropdown lists below.""")], {'width': '100%', 'height': '0vh'}
+        return [], [], [html.H4("""Please select at least a category on each the dropdown lists below.""")], {'width': '100%', 'height': '0vh'}
 
 @app.callback(
     Output('hover_node', 'children'),
     [Input('main-network', 'tapNodeData')])
 def tap_node_data(tapdata):
 
-    if tapdata is not None:
+    if tapdata is not None and tapdata != []:
         for i in range(0, len(data)):
             if data.iloc[i]['Name'] == tapdata['label']:
                 break
