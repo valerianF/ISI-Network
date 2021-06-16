@@ -81,7 +81,7 @@ app.layout = html.Div([
 
     html.Div([
         cyto.Cytoscape(
-            id='main-network',
+            id='main_network',
             layout={
                 'name':'cose',
                 'nodeDimensionsIncludeLabels': 'true'
@@ -95,7 +95,7 @@ app.layout = html.Div([
     ]),
 
     html.Div(
-        id='network-legend',
+        id='network_legend',
         className = 'legend'
     ),
 
@@ -139,15 +139,15 @@ app.layout = html.Div([
     
     html.P(style={'paddingBottom': '0cm'}),
 
-    html.Div(id='hover_node')
+    html.Div(id='tap_node')
 
 ])
 
 @app.callback([
-    Output('main-network', 'elements'),
-    Output('main-network', 'stylesheet'),
-    Output('network-legend', 'children'),
-    Output('main-network', 'style')
+    Output('main_network', 'elements'),
+    Output('main_network', 'stylesheet'),
+    Output('network_legend', 'children'),
+    Output('main_network', 'style')
     ], [Input('dropdown_filter', 'value'),
     Input('dropdown_link', 'value')])
 def update_elements(input_cat, input_link):
@@ -203,8 +203,8 @@ def update_elements(input_cat, input_link):
         return [], [], [html.H4("""Please select at least a category on each the dropdown lists below.""")], {'width': '100%', 'height': '0vh'}
 
 @app.callback(
-    Output('hover_node', 'children'),
-    [Input('main-network', 'tapNodeData')])
+    Output('tap_node', 'children'),
+    [Input('main_network', 'tapNodeData')])
 def tap_node_data(tapdata):
 
     if tapdata is not None and tapdata != []:

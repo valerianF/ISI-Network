@@ -25,8 +25,8 @@ class netObj:
 
         self.parents = []
         parents_f = []
-        self.colors = ['red', 'blue', 'green','magenta', 'cyan', 'black', 'indigo', 'saddlebrown',
-            'darkolivegreen', 'dimgray', 'darkorange']
+        self.colors = ['red', 'blue', 'green','magenta', 'cyan', 'indigo', 'saddlebrown', 'darkorange',
+            'darkolivegreen', 'dimgray', 'black']
         self.elements = []
         self.stylesheet = []
         shared_parents = []
