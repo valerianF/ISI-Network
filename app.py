@@ -39,6 +39,7 @@ app = dash.Dash(__name__,
     external_stylesheets=external_stylesheets,
     title='ISI Database',
     update_title='Loading...')
+server = app.server
 
 """ Importing the datasheet into a pandas dataframe """
 data = pd.read_csv(os.path.join(os.getcwd(), 'data', 'installationsList.csv'))
@@ -228,5 +229,6 @@ def tap_node_data(tapdata):
             )
         ]
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+""" Run the app. """
+if __name__ == "__main__":
+    app.run_server(debug=True, use_reloader=False) 
