@@ -59,9 +59,9 @@ FI.initiate_arrays()
 multi_cats = ["TS_", "LS_", "SD_"]
 
 """ Setting lists. Hard to automatize..."""
-labellist = AI.labels[12:] + IN.labels[7:] + SD.labels[18:] + FI.labels[13:]
-IDlist = AI.df['ids'][12:].tolist() + IN.df['ids'][7:].tolist() + SD.df['ids'][18:].tolist() + FI.labels[13:]
-parentlist = AI.parentslabels[12:] + IN.parentslabels[7:] + SD.parentslabels[18:] + FI.parents[13:]
+labellist = AI.labels[12:] + IN.labels[9:] + SD.labels[18:] + FI.labels[13:]
+IDlist = AI.df['ids'][12:].tolist() + IN.df['ids'][9:].tolist() + SD.df['ids'][18:].tolist() + FI.labels[13:]
+parentlist = AI.parentslabels[12:] + IN.parentslabels[9:] + SD.parentslabels[18:] + FI.parents[13:]
 
 linkIDlist0 = AI.df['ids'][1:12].tolist() + IN.df['ids'][1:7].tolist() + SD.df['ids'][1:18].tolist()
 linkparentlist = AI.labels[1:12] + IN.labels[1:7] + SD.labels[1:18]
