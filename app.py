@@ -12,6 +12,18 @@ from dash.dependencies import Input, Output
 from apps.network import netObj
 from apps.sunburst import appObj
 
+""" External Stylesheet """
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+""" App initialization """
+app = dash.Dash(__name__, 
+    suppress_callback_exceptions=True,
+    external_stylesheets=external_stylesheets,
+    title='ISI Network',
+    update_title='Loading...')
+server = app.server
+
+
 """ Local functions """
 def doi_to_url(link):
     """ Converts the doi into a proper url.
@@ -29,17 +41,6 @@ def doi_to_url(link):
         return re.sub('doi:', 'https://doi.org/', link)
     else:
         return link
-
-""" External Stylesheet """
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-""" App initialization """
-app = dash.Dash(__name__, 
-    suppress_callback_exceptions=True,
-    external_stylesheets=external_stylesheets,
-    title='ISI Network',
-    update_title='Loading...')
-server = app.server
 
 """ Importing the datasheet into a pandas dataframe """
 data = pd.read_csv(os.path.join(os.getcwd(), 'data', 'installationsList.csv'))
